@@ -15,23 +15,45 @@ LIBRARY DEPENDENCIES:
 
 ##include "include/trick/exec_proto.h"
 ##include "manipulator/manipulator.hh"
+##include "cpp17Test/cpp17.hh"
+
+##include <tuple>
+##include <iostream>
 
 class ManipulatorSimObject : public Trick::SimObject
 {
 
     public:
         PlanarManip robot;
+        int county = 0;
+
+        inline static int cpp17_int = 1;
+
+        void ToF(bool printout) { county++ ; if(printout){printf("Top o' the frame to ya (%d)\n",county);} return; }
+
+        void cpp17Code(bool printout)
+        {
+            std::tuple t{42, 3.14, "hello"};
+            if(printout)
+            {
+                std::cout << std::get<0>(t) << std::endl;
+                std::cout<<use_cpp17<<std::endl;
+            }
+        };
 
         ManipulatorSimObject(int ndof): robot(ndof)
         {
-            (0.050, "scheduled")  robot.calcKinematics();
-            (0.050, "scheduled")  robot.control();
-            ("derivative")        robot.stateDeriv();
-            ("integration")       trick_ret = robot.updateState();
+            P65000 ("top_of_frame")      ToF(false);    
+            ("top_of_frame")             cpp17Code(false);
+            ("top_of_frame")             print_type_info(42, false);
+            (0.050, "scheduled")         robot.calcKinematics();
+            (0.050, "scheduled")         robot.control();
+            ("derivative")               robot.stateDeriv();
+            ("integration")              trick_ret = robot.updateState();
         }
 
 };
 
 ManipulatorSimObject Manip2D(2);
 
-IntegLoop armIntegLoop(0.050) Manip2D;
+IntegLoop armIntegLoop(0.010) Manip2D;
